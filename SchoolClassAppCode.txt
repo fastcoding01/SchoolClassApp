@@ -1,0 +1,821 @@
+import Foundation
+struct Formatter {
+    func formatterdate(in date: Date)-> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/YY"
+        let dateformatted = formatter.string(from: date)
+        return dateformatted
+    }
+    func formattertime(in date: Date)-> String{
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        let dateformatted = formatter.string(from: date)
+        return dateformatted
+    }
+}
+
+
+
+import Foundation
+struct Student : Identifiable {
+    var id : String
+    var name : String
+    var surname : String
+    var isAbsent : Bool
+    var isBathroom : Bool
+}
+
+
+
+
+import Foundation
+import Firebase
+
+class getStudents: ObservableObject {
+    
+    @Published var datas = [Student]()
+
+    init() {
+        let db = Firestore.firestore()
+        let classRef = db.collection("5SA")
+        
+        classRef.order(by: "surname").addSnapshotListener {(snap,error) in
+            if error != nil{
+                print((error?.localizedDescription)!)
+                return
+            }
+            
+            
+            for i in snap!.documentChanges{
+                
+                
+                if i.type == .added{
+                    let id = i.document.documentID
+                    let name = i.document.get("name")as! String
+                    let surname = i.document.get("surname") as! String
+                    let isAbsent = i.document.get("absent") as! Bool
+                    let isBathroom = i.document.get("bathroom") as! Bool
+
+
+                    self.datas.append(Student(id: id, name: name, surname: surname, isAbsent: isAbsent, isBathroom: isBathroom))
+                }
+              if i.type == .modified{
+                    let id = i.document.documentID
+                    let isAbsent = i.document.get("absent") as! Bool
+                    let isBathroom = i.document.get("bathroom") as! Bool
+                    for j in 0..<self.datas.count{
+                        if self.datas[j].id == id{
+
+                            self.datas[j].isAbsent = isAbsent
+                            self.datas[j].isBathroom = isBathroom
+                        }
+                    }
+                }
+
+            }
+            
+    }
+}
+}
+
+
+
+import Foundation
+
+struct Day : Identifiable {
+    
+    var id : String
+    var first : String
+    var second : String
+    var third : String
+    var fourth : String
+    var fifth : String
+    var sixth : String
+    
+}
+
+
+
+
+
+import Foundation
+import Firebase
+
+class getOrario: ObservableObject {
+    @Published var orariodatas = [Day]()
+    
+    init() {
+        let db = Firestore.firestore()
+        let orarioRef = db.collection("TimeTable")
+        
+        orarioRef.addSnapshotListener {(snap,error) in
+            
+                if error != nil{
+                    print((error?.localizedDescription)!)
+                    return
+                }
+                
+                
+                for i in snap!.documentChanges{
+                    
+                    
+                    if i.type == .added{
+                        
+                        let id = i.document.documentID
+                        let first = i.document.get("1") as! String
+                        let second = i.document.get("2") as! String
+                        let third = i.document.get("3") as! String
+                        let fourth = i.document.get("4") as! String
+                        let fifth = i.document.get("5") as! String
+                        let sixth = i.document.get("6") as! String
+                        
+                        
+                        
+                        self.orariodatas.append(Day(id : id ,first: first, second: second, third: third, fourth: fourth, fifth: fifth, sixth: sixth))
+                        
+                    }
+                  if i.type == .modified{
+                    
+                        let id = i.document.documentID
+                        let first = i.document.get("1")as! String
+                        let second = i.document.get("2") as! String
+                        let third = i.document.get("3") as! String
+                        let fourth = i.document.get("4") as! String
+                        let fifth = i.document.get("5") as! String
+                        let sixth = i.document.get("6") as! String
+                        for j in 0..<self.orariodatas.count{
+                            
+                            if self.orariodatas[j].id == id{
+                                
+                                self.orariodatas[j].first = first
+                                self.orariodatas[j].second = second
+                                self.orariodatas[j].third = third
+                                self.orariodatas[j].fourth = fourth
+                                self.orariodatas[j].fifth = fifth
+                                self.orariodatas[j].sixth = sixth
+
+                            }
+                        }
+                    }
+
+                }
+                
+        }
+    }
+}
+
+
+
+
+import Foundation
+
+struct Event : Identifiable {
+    var id : String
+    var title : String
+    var arguments : String
+    var date : String
+    var time : String
+    var type : Int
+}
+
+
+
+
+
+import Foundation
+import Firebase
+
+class getEvent : ObservableObject {
+    @Published var eventdatas = [Event]()
+    
+    init() {
+        let db = Firestore.firestore()
+        let orarioRef = db.collection("Calendar")
+        
+        orarioRef.addSnapshotListener {(snap,error) in
+            
+                if error != nil{
+                    print((error?.localizedDescription)!)
+                    return
+                }
+                
+                
+                for i in snap!.documentChanges{
+                    
+
+                    if i.type == .added{
+                        
+                        let id = i.document.documentID
+                        let title = i.document.get("1") as! String
+                        let arguments = i.document.get("2") as! String
+                        let date = i.document.get("3") as! String
+                        let time = i.document.get("4") as! String
+                        let type = i.document.get("5") as! Int
+                        
+                        self.eventdatas.append(Event(id: id, title : title, arguments: arguments, date: date, time: time,type: type))
+                        
+                    }
+                  if i.type == .modified{
+                    
+                        let id = i.document.documentID
+                        let title = i.document.get("1") as! String
+                        let arguments = i.document.get("2") as! String
+                        let date = i.document.get("3") as! String
+                        let time = i.document.get("4") as! String
+                        let type = i.document.get("5") as! Int
+
+                    
+                        for j in 0..<self.eventdatas.count{
+                            
+                            if self.eventdatas[j].id == id{
+                                
+                                self.eventdatas[j].title = title
+                                self.eventdatas[j].arguments = arguments
+                                self.eventdatas[j].date = date
+                                self.eventdatas[j].time = time
+                                self.eventdatas[j].type = type
+                                
+                            }
+                        }
+                    }
+
+                }
+                
+        }
+    }
+    
+}
+
+
+
+
+
+import SwiftUI
+
+struct ContentView: View {
+    
+    @State var addEvent = false
+    @State var login = false
+    
+    var body: some View {
+        NavigationView{
+            ZStack{
+                VStack{
+                    ScrollView( showsIndicators: false){
+                        Menu().background(Color.white).padding(.top,30)
+                        
+                        
+                        Text("Eventi futuri").font(.largeTitle).fontWeight(.bold)
+                        EventScrollview()
+                        Text("Oggi").font(.largeTitle).fontWeight(.bold)
+                        Today()
+                    }
+                }.navigationBarTitle("Classe 5SA",displayMode: .inline).navigationBarItems(
+                    leading: Button(action: {
+                        self.login.toggle()
+                }) {
+                    Image(systemName: "lock.fill").foregroundColor(.black)
+                },
+                trailing: Button(action: {
+                    self.addEvent.toggle()
+                }){
+                    Image(systemName: "calendar.badge.plus").foregroundColor(.black)
+                }).sheet(isPresented: self.$addEvent){
+                    AddEvent()
+                    
+                }
+                
+                
+            }.background(Color.black.opacity(0.12))
+            
+        }.navigationViewStyle(StackNavigationViewStyle()).sheet(isPresented: self.$login){
+            Login()
+        }
+        
+    }
+    
+}
+
+
+
+
+
+
+import SwiftUI
+
+struct Menu : View {
+    
+    var body : some View{
+        HStack{
+            Spacer()
+            NavigationLink(destination: Studenti()){
+                
+                MenuRectangle().overlay(
+                    VStack{
+                        Spacer()
+                        RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 30).foregroundColor(.black).overlay(
+                            HStack{
+                                Text("Studenti").foregroundColor(.white)
+                                
+                                Image(systemName: "studentdesk").foregroundColor(.white)
+                            }
+                        )
+                        Spacer()
+                        
+                }).shadow(color: .black, radius: 2)
+                
+            }
+
+            Spacer()
+            NavigationLink(destination: OrarioPage().navigationBarTitle("Orario",displayMode: .inline)){
+                MenuRectangle().overlay(
+                    VStack{
+                        Spacer()
+                        RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 30).foregroundColor(.black).overlay(
+                            HStack{
+                                Text("Orario").foregroundColor(.white)
+                                
+                                Image(systemName: "clock").foregroundColor(.white)
+                        })
+                        Spacer()
+                    }).shadow(color: .black, radius: 2)
+            }
+            Spacer()
+            NavigationLink(destination: CalendarPage()){
+                
+                MenuRectangle().overlay(
+                    VStack{
+                        Spacer()
+                        RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 30).foregroundColor(.black).overlay(
+                            HStack{
+                                Text("Calendario").foregroundColor(.white)
+                                
+                                Image(systemName: "calendar").foregroundColor(.white)
+                        })
+                        Spacer()
+                    }).shadow(color: .black, radius: 2)
+                
+            }
+            Spacer()
+        }.background(Color.black.opacity(0.12))
+    }
+}
+
+
+
+
+import SwiftUI
+
+struct MenuRectangle : View {
+    var body : some View {
+       RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 70).foregroundColor(.white)
+}
+}
+
+
+
+
+
+
+import SwiftUI
+
+struct EventScrollview: View {
+    
+    @ObservedObject var events = getEvent()
+    @State var isToday = false
+    
+    var body: some View {
+            ScrollView(.horizontal, showsIndicators: false){
+                HStack{
+                    if !events.eventdatas.isEmpty{
+                ForEach(events.eventdatas,id: \.id){event in
+                    HStack{
+                        RoundedRectangle(cornerRadius: 20).frame(width:250,height: 250).foregroundColor(.white).overlay(
+                            
+                            VStack{
+                                RoundedRectangle(cornerRadius: 10).frame(width: 250,height: 90).foregroundColor(.init(red: 37/255, green: 71/255, blue: 35/255)).opacity(0.6).overlay(Text(event.title).foregroundColor(.white).font(.largeTitle))
+                                
+                                    Text(event.arguments).font(.title)
+                                    Text(event.date)
+                                    Text(event.time)
+                                
+                               
+                                
+                                Spacer()
+                            }.padding(.top,20)
+                        ).padding(.leading,20)
+                        
+                    }.onAppear(perform: {
+                        let currentDate = Date()
+                        let formatCDate = Formatter().formatterdate(in: currentDate)
+                        if formatCDate == event.date{
+                            self.isToday = true
+                        }
+                    })
+                
+               }
+                    }else{
+                        Text("Nessun Evento Recente").padding(.leading,20)
+                        
+                    }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+import SwiftUI
+
+struct Today: View {
+    
+    @ObservedObject var students = getStudents()
+    
+    var body: some View {
+        
+        HStack(alignment: .center){
+            Spacer()
+            
+            VStack{
+                Text("Assenti ").font(.title)
+                ForEach(students.datas,id: \.id){student in
+                    VStack(){
+                        if student.isAbsent{
+                            RoundedRectangle(cornerRadius: 20).frame(width:200,height: 60).foregroundColor(self.getColor(isAbsent: student.isAbsent, isBathroom: student.isBathroom)).overlay(Text("\(student.surname) \(student.name)")).padding(.bottom,5)
+                        }
+                    }
+                }
+                Spacer()
+            }
+            Spacer()
+            VStack{
+                Text("In bagno").font(.title)
+                ForEach(students.datas,id: \.id){student in
+                    VStack(){
+                        if student.isBathroom{
+                            RoundedRectangle(cornerRadius: 20).frame(width:200,height: 60).foregroundColor(self.getColor(isAbsent: student.isAbsent, isBathroom: student.isBathroom)).overlay(Text("\(student.surname) \(student.name)")).padding(.bottom,5)
+                        }
+                    }
+                }
+                Spacer()
+            }
+            Spacer()
+            VStack{
+                Text("Presenti").font(.title)
+                ForEach(students.datas,id: \.id){student in
+                    VStack(){
+                        if !student.isAbsent && !student.isBathroom{
+                            RoundedRectangle(cornerRadius: 20).frame(width:200,height: 60).foregroundColor(self.getColor(isAbsent: student.isAbsent, isBathroom: student.isBathroom)).overlay(Text("\(student.surname) \(student.name)")).padding(.bottom,5)
+                        }
+                    }
+                }
+                Spacer()
+            }
+            Spacer()
+        }.padding(.top,10)
+        
+    }
+    func getColor(isAbsent: Bool, isBathroom : Bool) -> Color {
+        if isAbsent{
+            return Color.red
+        }
+        if isBathroom{
+            return Color.blue
+        }
+        return Color.green
+    }
+}
+
+
+
+
+
+import SwiftUI
+
+struct OrarioPage: View {
+    
+    @ObservedObject var orariodatas = getOrario()
+    
+    var body: some View {
+        HStack(alignment: .center){
+            VStack(spacing:20){
+            Text("1").font(.largeTitle)
+            Text("2").font(.largeTitle)
+            Text("3").font(.largeTitle)
+            Text("4").font(.largeTitle)
+            Text("5").font(.largeTitle)
+            Text("6").font(.largeTitle)
+            }.padding(.trailing,20)
+            VStack(alignment: .center){
+            HStack(spacing:50){
+                Text("Lunedì").font(.largeTitle)
+                Text("Martedì").font(.largeTitle)
+                Text("Mercoledì").font(.largeTitle)
+                Text("Giovedì").font(.largeTitle)
+                Text("Venerdì").font(.largeTitle)
+            }
+            HStack{
+                
+                ForEach(self.orariodatas.orariodatas,id: \.id){hour in
+                    VStack(alignment:.leading,spacing: 10){
+                        HStack(spacing: 10){
+                            Rectangle().foregroundColor(.yellow).frame(width:160,height:50).overlay(Text(hour.first).font(.title))
+                        }
+                        HStack(spacing: 10){
+                             Rectangle().foregroundColor(.orange).frame(width:160,height:50).overlay(Text(hour.second).font(.title))                        }
+                        HStack(spacing: 10){
+                             Rectangle().foregroundColor(.pink).frame(width:160,height:50).overlay(Text(hour.third).font(.title))
+                        }
+                        HStack(spacing: 10){
+                            Rectangle().foregroundColor(.purple).frame(width:160,height:50).overlay(Text(hour.fourth).font(.title))
+                        }
+                        HStack(spacing: 10){
+                             Rectangle().foregroundColor(.gray).frame(width:160,height:50).overlay(Text(hour.fifth).font(.title))
+                        }
+                        HStack(spacing: 10){
+                             Rectangle().foregroundColor(.green).frame(width:160,height:50).overlay(Text(hour.sixth).font(.title))
+                        }
+                        
+                        
+                    }
+                }
+                
+            }
+        }
+        }
+    }
+}
+
+
+
+
+
+
+import SwiftUI
+import Firebase
+
+struct Studenti : View {
+    @ObservedObject var students = getStudents()
+    @State var isAlertVado = false
+    @State var isAlertTorno = false
+    @State var isAlertAbsent = false
+    
+    var body : some View {
+        ScrollView( showsIndicators: false){
+            ForEach(students.datas,id: \.id){student in
+                VStack{
+                    Rectangle().frame(width:700,height: 80).foregroundColor(self.getColor(isAbsent: student.isAbsent, isBathroom: student.isBathroom)).overlay(
+                        ZStack{
+                            RoundedRectangle(cornerRadius: 10).frame(width: 680, height: 60).foregroundColor(.black)
+                            HStack{
+                                Text("\(student.surname) \(student.name)").foregroundColor(.white).padding(.leading,30)
+                                Spacer()
+                                Button(action: {
+                                    if !student.isAbsent{
+                                    if !student.isBathroom{
+                                        let db = Firestore.firestore()
+                                        let classRef = db.collection("5SA")
+                                        
+                                        classRef.document(student.id).setData(["name":student.name,"surname":student.surname,"absent":student.isAbsent,"bathroom": true])
+                                    }else{
+                                        self.isAlertVado.toggle()
+                                    }
+                                    }else{
+                                        self.isAlertAbsent.toggle()
+                                    }
+                                }) {
+                                    RoundedRectangle(cornerRadius: 10).frame(width:150,height: 40).foregroundColor(.blue).overlay(Text("Vado in bagno").foregroundColor(.white))
+                                    
+                                }.alert(isPresented: self.$isAlertVado){
+                                    Alert(title:Text( "Stai mentendo!"), message: Text("Sei già in bagno, forse volevi utilizzare il pulsante 'Tornato dal bagno'"), dismissButton: .default(Text("OK")))
+                                }
+                                
+                                Button(action: {
+                                    if !student.isAbsent{
+                                    if student.isBathroom{
+                                        let db = Firestore.firestore()
+                                        let classRef = db.collection("5SA")
+                                        
+                                        classRef.document(student.id).setData(["name":student.name,"surname":student.surname,"absent":student.isAbsent,"bathroom": false])                                    }else{
+                                        self.isAlertTorno.toggle()
+                                    }
+                                    }else{
+                                        self.isAlertAbsent.toggle()
+                                    }
+                                }) {
+                                    RoundedRectangle(cornerRadius: 10).frame(width:150,height: 40).foregroundColor(.blue).overlay(Text("Tornato dal bagno").foregroundColor(.white))
+                                    
+                                }.padding(.trailing,30).alert(isPresented: self.$isAlertTorno){
+                                    Alert(title:Text( "Stai mentendo!"), message: Text("Non sei in bagno, forse volevi utilizzare il pulsante 'Vado in bagno'"), dismissButton: .default(Text("OK")))
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        .alert(isPresented: self.$isAlertAbsent){
+            Alert(title:Text( "Sei Assente!"), message: Text("Se invece sei presente chiedi aiuto ad un Admin"), dismissButton: .default(Text("OK")))
+        }
+        
+    }
+    func getColor(isAbsent: Bool, isBathroom : Bool) -> Color {
+        if isAbsent{
+            return Color.red
+        }
+        if isBathroom{
+            return Color.blue
+        }
+        return Color.green
+    }
+}
+
+
+
+
+
+
+
+
+import SwiftUI
+import Firebase
+
+struct AddEvent: View {
+    
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State var arguments = ""
+    @State var dateEvent = Date()
+    @State var selectedTypeEvent = 0
+    @State var titleEvent = ""
+    @State var showAlert = false
+    
+    private var validateFields : Bool{
+        !self.titleEvent.isEmpty && !self.arguments.isEmpty
+    }
+    
+    var body: some View {
+        VStack{
+            HStack{
+                Button(action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.down").foregroundColor(.black)
+                }.padding(10)
+                Spacer()
+                Text("Aggiungi un evento").font(.largeTitle).fontWeight(.bold)
+                Spacer()
+                Button(action: {
+                    
+                    if self.validateFields{
+                        
+                        let date = Formatter().formatterdate(in: self.dateEvent)
+                        let time = Formatter().formattertime(in: self.dateEvent)
+                        
+                        let db = Firestore.firestore()
+                        
+                        db.collection("Calendar").addDocument(data: ["1":self.titleEvent,"2": self.arguments,"3":date,"4":time,"5":self.selectedTypeEvent])
+                        
+                        self.presentationMode.wrappedValue.dismiss()
+
+                    }else{
+                        self.showAlert.toggle()
+                    }
+                    
+                    
+                }) {
+                    Text("Salva").foregroundColor(.black)
+                }.padding(10)
+            }
+            Form{
+                Section(header:Text("Titolo")){
+                TextField("Materia/Titolo Evento",text: $titleEvent)
+                }
+                Section(header:Text("Argomenti")){
+                TextField("Aggiungi gli argomenti", text: $arguments)
+                }
+                Section(header:Text("Tipologia")){
+                Picker("Tipologia Evento",selection: $selectedTypeEvent) {
+                    Text("Orale").tag(0)
+                    Text("Scritto").tag(1)
+                    
+                }.pickerStyle(SegmentedPickerStyle())
+                }
+                Section(header:Text("Data")){
+                    DatePicker("Data Evento",selection: $dateEvent,displayedComponents: [.date,.hourAndMinute])
+                }
+            }
+        
+        }.alert(isPresented: $showAlert){
+            Alert(title:Text( "Modulo incompleto"), message: Text("completare tutti i campi richiesti per continuare"), dismissButton: .default(Text("OK")))
+        }
+    }
+    
+}
+
+
+
+
+
+
+
+import SwiftUI
+import Firebase
+
+struct Login: View {
+    @State var username = ""
+    @State var password = ""
+    @State var goToAdmin = false
+    @State var isAlert = false
+    @State var isAlertPutPresent = false
+    @State var isAlertPutAbsent = false
+    @ObservedObject var students = getStudents()
+    @Environment(\.presentationMode) var presentationMode
+    
+    var isValidate: Bool{
+        !self.username.isEmpty && !self.password.isEmpty
+    }
+    var body: some View {
+        ScrollView{
+            VStack{
+                HStack{
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "chevron.down").foregroundColor(.black)
+                    }.padding(10)
+                    Spacer()
+                    Text("Pagina Admin").font(.largeTitle).fontWeight(.bold).padding().padding(.trailing,15)
+                    Spacer()
+                }
+                    TextField("Username", text: $username).textFieldStyle(RoundedBorderTextFieldStyle()).padding()
+                    SecureField("Password", text: $password).textFieldStyle(RoundedBorderTextFieldStyle()).padding()
+                    
+                    
+                    Button(action: {
+                        if self.isValidate{
+                            Auth.auth().signIn(withEmail: self.username, password: self.password){(result,error) in
+                                if error != nil{
+                                    print("error loggin in")
+                                }else{
+                                self.goToAdmin.toggle()
+                                }
+                            }
+                        }else{
+                            self.isAlert.toggle()
+                        }
+                    }) {
+                        RoundedRectangle(cornerRadius: 10).frame(width:225,height: 70).foregroundColor(.red).overlay(Text("Sign in").foregroundColor(.black).fontWeight(.bold))
+                    }
+                if self.goToAdmin{
+                    
+                    VStack(alignment:.leading){
+                        ForEach(self.students.datas,id: \.id){student in
+                            HStack{
+                                Text(student.surname).padding(.leading,20)
+                                Text(student.name)
+                                Spacer()
+                                Button(action: {
+                                    if !student.isAbsent && !student.isBathroom{
+                                    let db = Firestore.firestore()
+                                    let classRef = db.collection("5SA")
+                                    classRef.document(student.id).setData(["name":student.name,"surname":student.surname,"bathroom":student.isBathroom,"absent":true])
+                                    }else{
+                                        // alert
+                                        self.isAlertPutAbsent.toggle()
+                                    }
+                                }) {
+                                    RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 50).foregroundColor(.black).overlay(Text("Metti assente"))
+                                }.padding(.trailing,20).alert(isPresented: self.$isAlertPutAbsent){
+                                    Alert(title:Text( "Errore"), message: Text("Studente già Assente e non in bagno"), dismissButton: .default(Text("OK")))
+                                }
+                                Button(action: {
+                                    if student.isAbsent {
+                                    let db = Firestore.firestore()
+                                    let classRef = db.collection("5SA")
+                                    classRef.document(student.id).setData(["name":student.name,"surname":student.surname,"bathroom":student.isBathroom,"absent":false])
+                                    }else{
+                                        // alert
+                                        self.isAlertPutPresent.toggle()
+                                    }
+                                }) {
+                                    RoundedRectangle(cornerRadius: 10).frame(width: 150,height: 50).foregroundColor(.black).overlay(Text("Metti presente"))
+                                }.padding(.trailing,20).alert(isPresented: self.$isAlertPutPresent){
+                                    Alert(title:Text( "Errore"), message: Text("Studente già presente o in bagno"), dismissButton: .default(Text("OK")))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }.alert(isPresented: $isAlert){
+            Alert(title:Text( "Modulo incompleto"), message: Text("completare tutti i campi richiesti per continuare"), dismissButton: .default(Text("OK")))
+        }
+        
+    }
+}
+
+
+
